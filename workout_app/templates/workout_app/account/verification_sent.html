@@ -1,0 +1,24 @@
+<!-- workout_app/templates/account/verification_sent.html -->
+{% extends "account/base.html" %}
+
+{% block title %}Verification Sent - Workout Planner{% endblock %}
+
+{% block inner %}
+<div class="text-center">
+    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+    <h3 class="card-title mb-4">Check Your Email</h3>
+    
+    <div class="alert alert-info">
+        <p class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            We have sent an email verification link to your email address. 
+            Please check your inbox and click the link to verify your account.
+        </p>
+    </div>
+    
+    <p class="text-muted">
+        Didn't receive the email? Check your spam folder or 
+        <a href="{% url 'account_email' %}" class="text-decoration-none">resend verification email</a>.
+    </p>
+</div>
+{% endblock %}

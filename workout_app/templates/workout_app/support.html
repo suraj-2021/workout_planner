@@ -1,0 +1,208 @@
+<!-- workout_app/templates/workout_app/support.html -->
+{% extends "workout_app/base.html" %}
+
+{% block title %}Support Us - Workout Planner{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-heart"></i> Support Our Project
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">Help us keep this workout planner free and improve it with new features!</p>
+                
+                <div class="row">
+                    {% for option in payment_options %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 border-secondary">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ option.name }}</h5>
+                                <p class="card-text">{{ option.description }}</p>
+                                <h3 class="text-success">₹{{ option.amount }}</h3>
+                                
+                                <!-- Payment Provider Buttons -->
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary payment-btn" 
+                                            data-payment-option="{{ option.id }}"
+                                            data-provider="razorpay"
+                                            data-amount="{{ option.amount }}">
+                                        <i class="fas fa-credit-card"></i> Pay with Razorpay
+                                    </button>
+                                    <button class="btn btn-success payment-btn"
+                                            data-payment-option="{{ option.id }}"
+                                            data-provider="cashfree"
+                                            data-amount="{{ option.amount }}">
+                                        <i class="fas fa-wallet"></i> Pay with Cashfree
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Support Form Modal -->
+<div class="modal fade" id="supportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Support Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="supportForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" id="selectedPaymentOption" name="payment_option_id">
+                    <input type="hidden" id="selectedProvider" name="provider">
+                    
+                    <div class="mb-3">
+                        <label for="supporterName" class="form-label">Your Name (Optional)</label>
+                        <input type="text" class="form-control" id="supporterName" name="supporter_name">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="supporterEmail" class="form-label">Your Email (Optional)</label>
+                        <input type="email" class="form-control" id="supporterEmail" name="supporter_email">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="supporterMessage" class="form-label">Message (Optional)</label>
+                        <textarea class="form-control" id="supporterMessage" name="supporter_message" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-credit-card"></i> Proceed to Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+$(document).ready(function() {
+    let selectedPaymentOption, selectedProvider, selectedAmount;
+    
+    // Handle payment button clicks
+    $('.payment-btn').click(function() {
+        selectedPaymentOption = $(this).data('payment-option');
+        selectedProvider = $(this).data('provider');
+        selectedAmount = $(this).data('amount');
+        
+        $('#selectedPaymentOption').val(selectedPaymentOption);
+        $('#selectedProvider').val(selectedProvider);
+        
+        // Show support modal
+        $('#supportModal').modal('show');
+    });
+    
+    // Handle form submission
+    $('#supportForm').submit(function(e) {
+        e.preventDefault();
+        
+        // Show loading
+        $(this).find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+        
+        // Submit form data
+        $.ajax({
+            url: '{% url "create_payment" %}',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    $('#supportModal').modal('hide');
+                    
+                    if (response.provider === 'razorpay') {
+                        // Handle Razorpay payment
+                        var options = {
+                            "key": response.key,
+                            "amount": response.amount,
+                            "currency": response.currency,
+                            "name": response.name,
+                            "description": response.description,
+                            "order_id": response.order_id,
+                            "handler": function (razorpay_response) {
+                                // Create form to submit payment details
+                                var form = $('<form>', {
+                                    'method': 'POST',
+                                    'action': '{% url "razorpay_callback" %}'
+                                });
+                                
+                                form.append($('<input>', {
+                                    'type': 'hidden',
+                                    'name': 'csrfmiddlewaretoken',
+                                    'value': $('[name=csrfmiddlewaretoken]').val()
+                                }));
+                                
+                                form.append($('<input>', {
+                                    'type': 'hidden',
+                                    'name': 'razorpay_payment_id',
+                                    'value': razorpay_response.razorpay_payment_id
+                                }));
+                                
+                                form.append($('<input>', {
+                                    'type': 'hidden',
+                                    'name': 'razorpay_order_id',
+                                    'value': razorpay_response.razorpay_order_id
+                                }));
+                                
+                                form.append($('<input>', {
+                                    'type': 'hidden',
+                                    'name': 'razorpay_signature',
+                                    'value': razorpay_response.razorpay_signature
+                                }));
+                                
+                                form.append($('<input>', {
+                                    'type': 'hidden',
+                                    'name': 'payment_id',
+                                    'value': response.payment_id
+                                }));
+                                
+                                $('body').append(form);
+                                form.submit();
+                            },
+                            "prefill": response.prefill,
+                            "theme": {
+                                "color": "#3399cc"
+                            }
+                        };
+                        
+                        var rzp = new Razorpay(options);
+                        rzp.open();
+                        
+                    } else if (response.provider === 'cashfree') {
+                        // Redirect to Cashfree payment page
+                        if (response.payment_url) {
+                            window.location.href = response.payment_url;
+                        } else {
+                            alert('Error: Payment URL not received');
+                        }
+                    }
+                } else {
+                    alert('Error: ' + response.error);
+                }
+            },
+            error: function() {
+                alert('An error occurred. Please try again.');
+            },
+            complete: function() {
+                $('#supportForm button[type="submit"]').html('<i class="fas fa-credit-card"></i> Proceed to Payment');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

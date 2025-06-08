@@ -1,0 +1,27 @@
+{% extends "account/base.html" %}
+
+{% block title %}Confirm Email - Workout Planner{% endblock %}
+
+{% block inner %}
+<h3 class="card-title text-center mb-4">
+    <i class="fas fa-envelope-open"></i> Confirm Your Email
+</h3>
+
+{% if confirmation %}
+    <div class="text-center">
+        <p class="mb-4">Please confirm that {{ confirmation.email_address.email }} is an email address for user {{ confirmation.email_address.user }}.</p>
+        
+        <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-check"></i> Confirm Email
+            </button>
+        </form>
+    </div>
+{% else %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle"></i>
+        Invalid confirmation link.
+    </div>
+{% endif %}
+{% endblock %}

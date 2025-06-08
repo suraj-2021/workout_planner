@@ -1,0 +1,123 @@
+{% extends "workout_app/base.html" %}
+
+{% block title %}Workout Details{% endblock %}
+
+{% block content %}
+<style>
+    .form-section-title {
+        color: #27ae60;
+        border-bottom: 2px solid #8d5524;
+        margin-bottom: 1rem;
+    }
+    .workout-plan-detail {
+        background: #8d5524;
+        color: #fff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(34,34,34,0.08);
+    }
+    .workout-plan-detail .detail-label {
+        color: #fff;
+        font-weight: bold;
+    }
+    .workout-plan-detail .detail-value {
+        color: #ffe0b2;
+        font-size: 1.1rem;
+    }
+    .exercise-detail {
+        background: #f8f9fa;
+        border: 1px solid #8d5524;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    .exercise-detail .detail-label {
+        color: #8d5524;
+        font-weight: bold;
+    }
+    .exercise-detail .detail-value {
+        color: #222;
+    }
+    .icon {
+        color: #27ae60;
+        margin-right: 0.5rem;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="form-section-title"><i class="fas fa-dumbbell icon"></i>Workout Plan Details</h2>
+    <div class="workout-plan-detail mb-4">
+        <div class="mb-2">
+            <span class="detail-label">Title:</span>
+            <span class="detail-value">{{ workout.title }}</span>
+        </div>
+        <div class="mb-2">
+            <span class="detail-label">Description:</span>
+            <span class="detail-value">{{ workout.description }}</span>
+        </div>
+        <div class="mb-2">
+            <span class="detail-label">Workout Date:</span>
+            <span class="detail-value">{{ workout.workout_date|date:"F j, Y" }}</span>
+        </div>
+        <div class="mb-2">
+            <span class="detail-label">Send Email:</span>
+            <span class="detail-value">
+                {% if workout.send_email %}
+                    <i class="fas fa-check-circle icon"></i>Yes
+                {% else %}
+                    <i class="fas fa-times-circle text-danger icon"></i>No
+                {% endif %}
+            </span>
+        </div>
+        <div class="mb-2">
+            <span class="detail-label">Send Telegram:</span>
+            <span class="detail-value">
+                {% if workout.send_telegram %}
+                    <i class="fas fa-check-circle icon"></i>Yes
+                {% else %}
+                    <i class="fas fa-times-circle text-danger icon"></i>No
+                {% endif %}
+            </span>
+        </div>
+        <div class="mb-2">
+            <span class="detail-label">Send Discord:</span>
+            <span class="detail-value">
+                {% if workout.send_discord %}
+                    <i class="fas fa-check-circle icon"></i>Yes
+                {% else %}
+                    <i class="fas fa-times-circle text-danger icon"></i>No
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <h3 class="form-section-title"><i class="fas fa-running icon"></i>Exercises</h3>
+    {% if exercises %}
+        {% for exercise in exercises %}
+            <div class="exercise-detail">
+                <div class="mb-1">
+                    <span class="detail-label">Exercise Name:</span>
+                    <span class="detail-value">{{ exercise.exercise_name }}</span>
+                </div>
+                <div class="mb-1">
+                    <span class="detail-label">Sets:</span>
+                    <span class="detail-value">{{ exercise.sets }}</span>
+                </div>
+                <div class="mb-1">
+                    <span class="detail-label">Reps:</span>
+                    <span class="detail-value">{{ exercise.reps }}</span>
+                </div>
+                {% if exercise.notes %}
+                    <div class="mb-1">
+                        <span class="detail-label">Notes:</span>
+                        <span class="detail-value">{{ exercise.notes }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">No exercises added to this workout plan.</p>
+    {% endif %}
+</div>
+{% endblock %}

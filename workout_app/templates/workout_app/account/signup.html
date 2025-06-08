@@ -1,0 +1,69 @@
+<!-- workout_app/templates/account/signup.html -->
+{% extends "account/base.html" %}
+{% load socialaccount %}
+
+{% block title %}Sign Up - Workout Planner{% endblock %}
+
+{% block inner %}
+<h3 class="card-title text-center mb-4">
+    <i class="fas fa-user-plus"></i> Create Your Account
+</h3>
+
+<!-- Social Signup Section -->
+<div class="social-login">
+    <a href="{% provider_login_url 'google' %}" class="btn btn-danger btn-lg w-100 mb-3">
+        <i class="fab fa-google"></i> Sign up with Google
+    </a>
+</div>
+
+<div class="divider">
+    <span>OR</span>
+</div>
+
+<!-- Regular Signup Form -->
+<form method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    
+    <div class="mb-3">
+        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+        <input type="email" class="form-control" name="{{ form.email.name }}" 
+               id="{{ form.email.id_for_label }}" placeholder="Enter your email" required>
+        {% if form.email.errors %}
+            <div class="text-danger">{{ form.email.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+        <input type="password" class="form-control" name="{{ form.password1.name }}" 
+               id="{{ form.password1.id_for_label }}" placeholder="Enter your password" required>
+        {% if form.password1.errors %}
+            <div class="text-danger">{{ form.password1.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="mb-3">
+        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" name="{{ form.password2.name }}" 
+               id="{{ form.password2.id_for_label }}" placeholder="Confirm your password" required>
+        {% if form.password2.errors %}
+            <div class="text-danger">{{ form.password2.errors }}</div>
+        {% endif %}
+    </div>
+    
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+    
+    <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+        <i class="fas fa-user-plus"></i> Create Account
+    </button>
+</form>
+
+<div class="text-center">
+    <p>
+        Already have an account? 
+        <a href="{% url 'account_login' %}" class="text-decoration-none">Login here</a>
+    </p>
+</div>
+{% endblock %}

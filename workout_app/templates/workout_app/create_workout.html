@@ -1,0 +1,110 @@
+{% extends "workout_app/base.html" %}
+
+{% block title %}Create Your Workouts{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4"><i class="fas fa-tachometer-alt"></i> Your Workout Sheduler</h2>
+<style>
+    .form-section-title {
+        color: #27ae60;
+        border-bottom: 2px solid #8d5524;
+        margin-bottom: 1rem;
+    }
+    .form-label {
+        color: #fff; /* White text for dark background */
+        font-weight: bold;
+    }
+    .form-control:focus {
+        border-color: #27ae60;
+        box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25);
+    }
+    .btn-custom {
+        background-color: #8d5524;
+        color: #fff;
+        border: none;
+    }
+    .btn-custom:hover {
+        background-color: #27ae60;
+        color: #fff;
+    }
+    .form-check-input:checked {
+        background-color: #27ae60;
+        border-color: #27ae60;
+    }
+    .exercise-form {
+        background: #000066;
+        border: 1px solid #8d5524;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    .workout-plan-form {
+        background: #000066;
+        color: #fff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(34,34,34,0.08);
+    }
+    .workout-plan-form .form-control,
+    .workout-plan-form .form-check-input {
+        background: #fff;
+        color: #222;
+    }
+    .workout-plan-form .form-text,
+    .workout-plan-form .text-danger {
+        color: #ffe0b2 !important;
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="form-section-title">Workout Plan</h2>
+    <form method="post">
+        {% csrf_token %}
+        <!-- WorkoutPlanForm in a brown block -->
+        <div class="workout-plan-form">
+            {% for field in workout_form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        <h3 class="form-section-title">Exercises</h3>
+        <!-- ExerciseFormSet -->
+        <div id="exercise-formset">
+            {{ exercise_formset.management_form }}
+            {% for form in exercise_formset %}
+                <div class="exercise-form">
+                    {% for field in form.visible_fields %}
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    {% if form.can_delete %}
+                        <div class="form-check mb-2">
+                            {{ form.DELETE }} <label class="form-check-label">Delete</label>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-custom mt-3">Save Workout</button>
+    </form>
+</div>
+
+{% endblock %}
